@@ -15,13 +15,13 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 
     public static final int WIDTH = 320;
     public static final int HEIGHT = 240;
-    public static final int SCALE = 2;
+    public static final int SCALE = 4;
 
     //game thread
     private Thread thread;
     private boolean running;
     private int FPS = 60;
-    private long targetTime = 1000/FPS;
+    private long targetTime = 1000 / FPS;
 
     //image
     private BufferedImage image;
@@ -31,7 +31,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 
     private GameStateManager gsm;
 
-    public GamePanel(){
+    public GamePanel() {
         super();
         setPreferredSize(new Dimension(WIDTH * SCALE, HEIGHT * SCALE));
         setFocusable(true);
@@ -39,26 +39,24 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 
     }
 
-    public void addNotify(){
+    public void addNotify() {
         super.addNotify();
-        if(thread == null){
+        if (thread == null) {
             thread = new Thread(this);
             addKeyListener(this);
             thread.start();
         }
     }
 
-    private void init(){
+    private void init() {
 
-        image = new BufferedImage(WIDTH,HEIGHT,BufferedImage.TYPE_INT_RGB);
+        image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
         g = (Graphics2D) image.getGraphics();
-
         running = true;
-
         gsm = new GameStateManager();
     }
 
-    public void run(){
+    public void run() {
         init();
 
         long start;
@@ -76,28 +74,29 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
             elapsed = System.nanoTime() - start;
 
             wait = targetTime - elapsed / 100000000;
-            if (wait < 0){
+            if (wait < 0) {
                 wait = 5;
             }
-            try{
+            try {
                 Thread.sleep(wait);
-            }
-            catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private void update(){
+    private void update() {
         gsm.update();
 
     }
-    private void draw(){
+
+    private void draw() {
         gsm.draw(g);
     }
-    private void drawToScreen(){
+
+    private void drawToScreen() {
         Graphics g2 = getGraphics();
-        g2.drawImage(image,0,0,WIDTH * SCALE, HEIGHT* SCALE,null);
+        g2.drawImage(image, 0, 0, WIDTH * SCALE, HEIGHT * SCALE, null);
         g2.dispose();
     }
 

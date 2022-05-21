@@ -9,6 +9,7 @@ public class MenuState extends GameState{
 
     private Background bg;
 
+
     private String[] options = {
             "Start",
             "Help",
@@ -25,7 +26,7 @@ public class MenuState extends GameState{
 
         try{
             bg = new Background("/Backgrounds/menubg.gif",1);
-            bg.setVector(-0.1,0);
+            bg.setVector(-0.1, 0);
 
             titleColor = new Color(128,0,0);
             titleFont = new Font("Century Gothic", Font.PLAIN,28);
@@ -36,24 +37,28 @@ public class MenuState extends GameState{
         }
     }
 
+
     public void init(){};
-    public void update(){};
+    public void update(){
+        bg.update();
+    };
     public void draw(Graphics2D g){
 
         //draw bg
         bg.draw(g);
 
+
         g.setColor(titleColor);
         g.setFont(titleFont);
-        g.drawString("DragonTale,",80,70);
+        g.drawString("DragonTale",80,70);
 
         //drawMenuOptions
         g.setFont(font);
         for(int i = 0;i < options.length; i++){
             if(i == currentChoice){
-                g.setColor(Color.BLACK);
-            }else{
                 g.setColor(Color.RED);
+            }else{
+                g.setColor(Color.BLACK);
             }
             g.drawString(options[i],145,140 + i*15);
 

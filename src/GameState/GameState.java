@@ -1,5 +1,7 @@
 package GameState;
 
+import java.awt.*;
+
 public abstract class GameState {
 
     protected GameStateManager gsm;
@@ -8,5 +10,5 @@ public abstract class GameState {
     public abstract void update();
     public abstract void keyPressed(int k);
     public abstract void keyReleased(int k);
-    public abstract void draw(java.awt.Graphics2D g);
+    public abstract void draw(Graphics2D g);
 }

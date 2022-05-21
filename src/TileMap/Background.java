@@ -50,7 +50,7 @@ public class Background {
             g.drawImage(
                     image,
                     (int) x + GamePanel.WIDTH,
-                    (int) y,
+                    (int) y + 0,
                     null
             );
         }
@@ -58,7 +58,7 @@ public class Background {
             g.drawImage(
                     image,
                     (int) x - GamePanel.WIDTH,
-                    (int) y,
+                    (int) y + 0,
                     null
             );
         }
