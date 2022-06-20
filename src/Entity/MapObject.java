@@ -193,6 +193,55 @@ public abstract class MapObject {
                 y + ymap - height > GamePanel.HEIGHT;
     }
 
+    public void draw(Graphics2D g){
+
+        if(facingRight){
+            g.drawImage(
+                    animation.getImage(),
+                    (int)(x + xmap - width /2),
+                    (int)(y + ymap - height /2),
+                    null
+            );
+        }
+        else{
+            g.drawImage(
+                    animation.getImage(),
+                    (int)(x + xmap - width/2 + width),
+                    (int)(y + ymap - height/2),
+                    -width,
+                    height,
+                    null
+            );
+        }
+    }
+    void getNextPosition() {
+        //movement
+        if (left) {
+            dx -= moveSpeed;
+            if (dx < -maxSpeed) {
+                dx = -maxSpeed;
+            }
+        } else if (right) {
+            dx += moveSpeed;
+            if (dx > maxSpeed) {
+                dx = maxSpeed;
+            }
+        } else {
+            if (dx > 0) {
+                dx -= stopSpeed;
+                if (dx < 0) {
+                    dx = 0;
+                }
+            } else if (dx < 0) {
+                dx += stopSpeed;
+                if (dx > 0) {
+                    dx = 0;
+                }
+            }
+        }
+    }
+
+
 
 
 

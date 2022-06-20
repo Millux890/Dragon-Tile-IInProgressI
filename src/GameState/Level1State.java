@@ -1,5 +1,9 @@
 package GameState;
 
+import Entity.Enemies.Slugger;
+import Entity.Enemy;
+import Entity.Explosion;
+import Entity.HUD;
 import Entity.Player;
 import Main.GamePanel;
 import TileMap.Background;
@@ -7,13 +11,20 @@ import TileMap.TileMap;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 
 public class Level1State extends GameState {
 
     private TileMap tileMap;
     private Background bg;
 
+    private HUD hud;
+
     private Player player;
+    private ArrayList<Enemy> enemies;
+    private ArrayList<Explosion> explosions;
+    private GameStateManager gsm;
+    private boolean inGame = false;
 
     public Level1State(GameStateManager gsm) {
         this.gsm = gsm;
@@ -26,7 +37,7 @@ public class Level1State extends GameState {
         tileMap.loadTiles("/Tilesets/grasstileset.gif");
         tileMap.loadMap("/Maps/level1-1.map");
         tileMap.setPosition(0,0);
-        //tileMap.setTween(1);
+        tileMap.setTween(1);
 
 
 
@@ -34,15 +45,38 @@ public class Level1State extends GameState {
 
         player = new Player(tileMap);
         player.setPosition(100,100);
+
+        populateEnemies();
+
+        explosions = new ArrayList<>();
+
+        hud = new HUD(player);
+        inGame = true;
+
+
     }
 
-   public void update() {
-        player.update();
-        tileMap.setPosition(
-               GamePanel.WIDTH / 2 - player.getx(),
-               GamePanel.HEIGHT / 2 - player.gety());
+    private void populateEnemies(){
+        enemies = new ArrayList<Enemy>();
+
+        Slugger s;
+        Point[] point = new Point[]{
+                new Point(860,200),
+                new Point(1525,200),
+                new Point(1680, 200),
+                new Point(1800,200)
+        };
+        for(int i = 0; i < point.length;i++){
+            s = new Slugger(tileMap);
+            s.setPosition(point[i].x,point[i].y);
+            enemies.add(s);
+        }
+
+       // s.setPosition(860,200);
 
     }
+
+
 
 
     public void keyPressed(int k) {
@@ -70,6 +104,59 @@ public class Level1State extends GameState {
 
     }
 
+    public void update() {
+        player.update();
+        tileMap.setPosition(
+                GamePanel.WIDTH / 2 - player.getx(),
+                GamePanel.HEIGHT / 2 - player.gety());
+
+        //set background
+        bg.setPosition(tileMap.getx(), tileMap.gety());
+
+        //attack enemies
+        player.checkAttack(enemies);
+
+        //update all enemies
+        for(int i = 0 ; i < enemies.size(); i++){
+            Enemy e = enemies.get(i);
+            enemies.get(i).update();
+            if(enemies.get(i).isDead()){
+                enemies.remove(i);
+                i--;
+                explosions.add(
+                        new Explosion(e.getx(),e.gety()));
+            }
+        }
+
+        //update explosions
+        for(int i = 0; i < explosions.size();i++){
+            explosions.get(i).update();
+            if(explosions.get(i).shouldRemove()){
+                explosions.remove(i);
+                i--;
+            }
+        }
+
+        //check if dead
+        if(player.isDead() && inGame == true){
+            System.out.println("Im dead");
+            gsm.setState(GameStateManager.MENUSTATE);
+
+            update();
+        }
+
+        if(player.gety() > 220 && inGame == true){
+            gsm.setState(GameStateManager.MENUSTATE);
+            inGame = false;
+            update();
+
+        }
+
+
+
+
+    }
+
     public void draw(Graphics2D g) {
 
         //clear screen
@@ -80,5 +167,20 @@ public class Level1State extends GameState {
 
         //draw player
         player.draw(g);
+
+        //draw enemies
+        for(int i = 0; i < enemies.size(); i++){
+            enemies.get(i).draw(g);
+        }
+
+        //draw explosions
+        for(int i = 0; i < explosions.size();i++){
+            explosions.get(i).setMapPosition((int)tileMap.getx(), (int)tileMap.gety());
+            explosions.get(i).draw(g);
+
+        }
+
+        //draw hud
+        hud.draw(g);
     }
 }

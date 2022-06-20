@@ -14,7 +14,7 @@ public class Player extends MapObject{
     private final int maxHealth;
     private int fire;
     private final int maxFire;
-    private boolean dead;
+    private boolean dead = false;
     private boolean flinching;
     private long flinchTimer;
 
@@ -139,6 +139,9 @@ public class Player extends MapObject{
     public void setFiring() {
         this.firing = true;
     }
+    public boolean isDead(){
+        return dead;
+    }
 
     public void setScratchingFalse() {
         this.scratching = false;
@@ -155,37 +158,70 @@ public class Player extends MapObject{
         this.gliding = b;
     }
 
+    public void checkAttack(ArrayList<Enemy> enemies){
 
-    private void getNextPosition(){
-
-        //movement
-        if(left){
-            dx -= moveSpeed;
-            if(dx < -maxSpeed){
-                dx = -maxSpeed;
-            }
-        }
-        else if(right){
-            dx += moveSpeed;
-            if(dx > maxSpeed){
-                dx = maxSpeed;
-            }
-        }
-        else{
-            if(dx > 0){
-                dx -= stopSpeed;
-                if(dx < 0){
-                    dx = 0;
+        //check scratch attack
+        if(scratching){
+            if(facingRight){
+                for(int i = 0; i < enemies.size(); i++){
+                    Enemy e = enemies.get(i);
+                    if(e.getx() > x &&
+                            e.getx() < x + scratchRange &&
+                            e.gety() > y - height/2 &&
+                            e.gety() < y + height/2){
+                        e.hit(scratchDamage);
+                    }
                 }
             }
-            else if(dx < 0){
-                dx += stopSpeed;
-                if(dx > 0){
-                    dx = 0;
+            else{
+                for(int i = 0; i < enemies.size(); i++){
+                    Enemy e = enemies.get(i);
+                    if(e.getx() < x &&
+                            e.getx() > x - scratchRange &&
+                            e.gety() > y - height/2 &&
+                            e.gety() < y + height/2){
+                        e.hit(scratchDamage);
+                    }
                 }
             }
         }
 
+        //fireballs
+        for(int i = 0; i < enemies.size();i++){
+            for(int j = 0;j< fireBalls.size();j++){
+                if(fireBalls.get(j).intersects(enemies.get(i))){
+                    enemies.get(i).hit(fireBallDamage);
+                    fireBalls.get(j).setHit();
+                }
+            }
+        }
+
+        //check collision
+        for(int i = 0; i < enemies.size(); i++){
+            Enemy e = enemies.get(i);
+            if(intersects(e)){
+                hit(e.getDamage());
+
+            }
+        }
+    }
+
+    private void hit(int damage){
+        if(flinching) return;
+        health -= damage;
+        if(health < 0) health = 0;
+        if(health == 0){
+            dead = true;
+
+        }
+        flinching = true;
+        flinchTimer = System.nanoTime();
+    }
+
+
+     void getNextPosition(){
+
+        super.getNextPosition();
         //cannot attack while moving
         if((currentAction == SCRATCHING || currentAction == FIREBALL) &&
             !(jumping || falling)){
@@ -231,6 +267,13 @@ public class Player extends MapObject{
                 fireBalls.remove(i);
                 i--;
 
+            }
+        }
+
+        if(flinching){
+            long elapsed = (System.nanoTime() - flinchTimer) / 1000000;
+            if(elapsed > 1000){
+                flinching = false;
             }
         }
 
@@ -333,24 +376,8 @@ public class Player extends MapObject{
             }
         }
 
-        if(facingRight){
-            g.drawImage(
-                    animation.getImage(),
-                    (int)(x + xmap - width /2),
-                    (int)(y + ymap - height /2),
-                    null
-            );
-        }
-        else{
-            g.drawImage(
-                    animation.getImage(),
-                    (int)(x + xmap - width/2 + width),
-                    (int)(y + ymap - height/2),
-                    -width,
-                    height,
-                    null
-            );
-        }
+        super.draw(g);
+
     }
 }
 

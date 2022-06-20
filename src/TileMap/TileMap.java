@@ -133,6 +133,10 @@ public class TileMap {
         return height;
     }
 
+    public void setTween(int tween){
+        this.tween = tween;
+    }
+
     public int getType(int row, int col){
         int rc = map[row][col];
         int r = rc / numTilesAcross;
